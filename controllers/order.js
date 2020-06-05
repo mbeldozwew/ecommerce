@@ -2,7 +2,7 @@ const {Order, CartItem}=require('../models/order')
 const {errorHandler} =require('../helpers/dbErrorHandler')
 const sgMail = require('@sendgrid/mail');
 sgMail.setApiKey('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');
-
+const sendMail= require('./email.send')
 
 
 exports.orderById =(req, res, next, id)=>{
@@ -36,7 +36,7 @@ exports.create = (req, res) => {
         // order.products.length
         // order.amount
         const emailData = {
-            to: 'kaloraat@gmail.com', // admin
+            to: "shinaqolbunajati@gmail.com", // admin
             from: process.env.EMAIL_FROM,
             subject: `A new order is received`,
             html: `
@@ -63,8 +63,7 @@ exports.create = (req, res) => {
             <p>Login to your dashboard</a> to see the order in detail.</p>
         `
         };
-        sgMail
-            .send(emailData)
+        sendMail("shinaqolbunajati@gmail.com",emailData)
             .then(sent => console.log('SENT >>>', sent))
             .catch(err => console.log('ERR >>>', err));
  
@@ -93,8 +92,7 @@ exports.create = (req, res) => {
             <p>Thank your for shopping with us.</p>
         `
         };
-        sgMail
-            .send(emailData2)
+        sendMail(order.user.email, emailData2)
             .then(sent => console.log('SENT 2 >>>', sent))
             .catch(err => console.log('ERR 2 >>>', err));
  
