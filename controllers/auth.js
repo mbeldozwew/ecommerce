@@ -4,8 +4,9 @@ const jwt=require("jsonwebtoken")
 const expressJwt=require("express-jwt")
 const _ = require('lodash');
 const {OAuth2Client} = require('google-auth-library')
+const sendMail = require('./email.send')
 const sgMail = require('@sendgrid/mail');
-sgMail.setApiKey('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');
+sgMail.setApiKey(process.env.SENGRID_API_KEY);
 
 exports.signup = (req, res) => {
     const { name, email, password } = req.body;
@@ -21,7 +22,7 @@ exports.signup = (req, res) => {
         
         const emailData = {
             to: email,
-            from: process.env.EMAIL_FROM,
+            from: process.env.EMAIL_USER,
             subject: `Account activation link`,
             html: `
                 <h1>Please use the following link to activate your account</h1>
@@ -31,7 +32,7 @@ exports.signup = (req, res) => {
                 <p>${process.env.CLIENT_URL}</p>`
         };
 
-        sgMail.send(emailData)
+        sendMail(email, emailData)
             .then(sent => {
                 // console.log('SIGNUP EMAIL SENT', sent)
                 return res.json({
@@ -170,8 +171,7 @@ exports.forgotPassword = (req, res) => {
                     error: 'Database connection error on user password forgot request'
                 });
             } else {
-                sgMail
-                    .send(emailData)
+                sendMail(emailData, email)
                     .then(sent => {
                         // console.log('SIGNUP EMAIL SENT', sent)
                         return res.json({
